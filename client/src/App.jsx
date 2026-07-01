@@ -1,122 +1,134 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useState } from "react";
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [prompt, setPrompt] = useState('');
+  const [selectedStyle, setSelectedStyle] = useState('');
+  const [image, setImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const stylesList = [
+    { id: 'cyberpunk', label: '⚡ Cyberpunk', value: 'cyberpunk style, neon lighting, highly detailed, 8k resolution' },
+    { id: 'anime', label: '🌸 Anime', value: 'anime aesthetic, studio ghibli vibe, vibrant colors, makoto shinkai' },
+    { id: 'cinematic', label: '🎬 Cinematic', value: 'cinematic lighting, 35mm photograph, dramatic atmosphere, photorealistic' },
+    { id: '3d', label: '🚀 3D Render', value: 'unreal engine 5 render, blender 3d, claymation style, cute and isometric' },
+    { id: 'oil', label: '🎨 Oil Painting', value: 'classic oil painting texture, van gogh brushstrokes, canvas masterpiece' }
+  ];
+
+  const handleGenerate = (e) => {
+    e.preventDefault();
+    if (!prompt.trim()) return;
+
+    setLoading(true);
+    setError('');
+    setImage(null);
+
+    try {
+      // Combine user prompt with the selected style tag
+      const finalPrompt = selectedStyle 
+        ? `${prompt}, ${selectedStyle}`
+        : prompt;
+
+      const seed = Math.floor(Math.random() * 100000);
+      const targetUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(finalPrompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
+
+      // Directly set the source URL to the image state
+      setImage(targetUrl);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to map the image path correctly.");
+      setLoading(false);
+    }
+  };
+
+  // Turn off loading spinner only when the HTML image finishes downloading/rendering
+  const handleImageLoad = () => {
+    setLoading(false);
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="app-container">
+      <div className="background-glow"></div>
+      
+      <header className="app-header">
+        <h1 className="logo-text">Prompt To <span>Pixels</span></h1>
+        <p className="developer-tag">Designed by Iraj Imran</p>
+      </header>
 
-      <div className="ticks"></div>
+      <main className="main-content">
+        <form onSubmit={handleGenerate} className="glass-card control-panel">
+          <div className="input-group">
+            <input
+              type="text"
+              placeholder="Describe what you want to create..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="styled-input"
+            />
+            <button type="submit" className="glow-btn" disabled={!prompt.trim()}>
+              Generate
+            </button>
+          </div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
+          {/* Style Presets Container */}
+          <div className="style-section">
+            <p className="section-title">Enhance with Style Presets:</p>
+            <div className="chips-container">
+              {stylesList.map((style) => (
+                <button
+                  key={style.id}
+                  type="button"
+                  className={`style-chip ${selectedStyle === style.value ? 'active' : ''}`}
+                  onClick={() => setSelectedStyle(selectedStyle === style.value ? '' : style.value)}
                 >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+                  {style.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </form>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* Display Studio Container */}
+        <div className="glass-card display-studio">
+          {error && <p className="error-text"> {error}</p>}
+          
+          {loading && (
+            <div className="loader-box">
+              <div className="neon-spinner"></div>
+              <p className="loading-text">Weaving your pixels together...</p>
+            </div>
+          )}
+
+          {/* Hidden image logic to handle loading accurate states */}
+          {image && (
+            <div className={`result-wrapper ${loading ? 'hidden' : 'fade-in'}`}>
+              <img 
+                src={image} 
+                alt={prompt} 
+                className="generated-image" 
+                onLoad={handleImageLoad}
+                onError={() => { setError("Error loading image asset."); setLoading(false); }}
+              />
+              <div className="action-row">
+                <p className="active-prompt-display">" {prompt} "</p>
+                <a href={image} target="_blank" rel="noreferrer" className="action-btn download">
+                  Open Original / Save
+                </a>
+              </div>
+            </div>
+          )}
+
+          {!image && !loading && !error && (
+            <div className="placeholder-box">
+              <div className="placeholder-icon">🎨</div>
+              <p>Your studio is ready. Type a prompt above to turn your imagination into reality.</p>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;
